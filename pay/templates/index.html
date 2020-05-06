@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Stripe Sample</title>
+    <meta name="description" content="A demo of Stripe Payment Intents"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}?v=7"/>
+    <link rel="stylesheet" href="{% static 'css/global.css' %}?v=7"/>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        window.csrf_token = '{{ csrf_token }}';
+    </script>
+    <script src="{% static 'js/script.js' %}?v=7" defer></script>
+    <style>
+
+        .group .saved_card_label:not(:last-child) {
+            border-bottom: 1px solid #F0F5FA;
+        }
+
+        .field {
+            background: transparent;
+            font-weight: 300;
+            border: 0;
+            color: #31325F;
+            outline: none;
+            flex: 1;
+            padding-right: 10px;
+            cursor: text;
+            padding-top: 14px;
+        }
+
+        .field::-webkit-input-placeholder {
+            color: #CFD7E0;
+        }
+
+        .field::-moz-placeholder {
+            color: #CFD7E0;
+        }
+
+        .saved_card_label, #pouet {
+            position: relative;
+            color: #8898AA;
+            font-weight: 300;
+            height: 40px;
+            line-height: 40px;
+            margin-left: 20px;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .saved_card_label > span, #pouet > span {
+            width: 35px;
+        }
+
+        .success-new-card .token, .success-saved-card {
+            font-weight: 500;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="sr-root">
+    <div class="sr-main">
+        <header class="sr-header">
+            <div class="sr-header__logo"></div>
+        </header>
+        <div class="sr-payment-summary payment-view">
+            <h1 class="order-amount">$14.00</h1>
+            <h4>Purchase a Pasha photo</h4>
+        </div>
+
+        <div class="sr-payment-form payment-view">
+            <div class="sr-form-row">
+                <label for="card-element">
+                    Payment details
+                </label>
+                <div class="sr-combo-inputs">
+                    <div class="group">
+                        {% for pm in payment_methods.data %}
+                            <label class="saved_card_label">
+                                <span><input type="radio" name="payment-source" value="{{ pm.id }}" checked></span>
+                                <div id="saved-card{{ pm.card.last4 }}">**** **** **** {{ pm.card.last4 }}</div>
+                            </label>
+                        {% endfor %}
+                        <div id="pouet" {% if not payment_methods %}style="margin-left: 0"{% endif %}>
+                            <span {% if not payment_methods %}style="width: 0"{% endif %}>
+                                <input type="radio"
+                                       {% if not payment_methods %}class="hidden"{% endif %}
+                                       name="payment-source"
+                                       value="new-card"
+                                       id="new-card-radio">
+                            </span>
+                            <div id="card-element" class="field"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sr-field-error" id="card-errors" role="alert"></div>
+                {% if request.user.is_authenticated %}
+                    <div class="sr-form-row">
+                        <label class="sr-checkbox-label">
+                            <input type="checkbox" id="save-card">
+                            <span class="sr-checkbox-check"></span>
+                            Save card for future payments
+                        </label>
+                        <br>
+                        <small>Your saved card is only used to optimize your purchase flow.</small>
+                    </div>
+                {% endif %}
+            </div>
+            <button id="submit">
+                <span id="button-text">Pay</span>
+            </button>
+            <div class="sr-legal-text">
+                Your card will be charged $14.00.
+            </div>
+        </div>
+
+        <div class="status"></div>
+
+        {% if request.user.is_authenticated %}
+            <a href="/">
+                <button>Restart again</button>
+            </a>
+        {% else %}
+            <a href="{% url 'admin:login' %}">
+                <button>Please login</button>
+            </a>
+            <br>
+            <small>you have to go back to / manually because login goes to /admin/</small>
+        {% endif %}
+    </div>
+    <div class="sr-content">
+        <div class="pasha-image-stack">
+            <img src="https://picsum.photos/280/320?random=1" width="140" height="160" alt=""/>
+            <img src="https://picsum.photos/280/320?random=2" width="140" height="160" alt=""/>
+            <img src="https://picsum.photos/280/320?random=3" width="140" height="160" alt=""/>
+            <img src="https://picsum.photos/280/320?random=4" width="140" height="160" alt=""/>
+        </div>
+    </div>
+</div>
+</body>
+</html>

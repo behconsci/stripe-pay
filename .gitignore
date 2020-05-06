@@ -1,0 +1,7 @@
+*.name
+*.pyc
+.idea/*
+*/static/*
+*/media/*
+.DS_Store
+*.env
